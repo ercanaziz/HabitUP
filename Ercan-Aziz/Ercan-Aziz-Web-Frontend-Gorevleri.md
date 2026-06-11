@@ -1,4 +1,4 @@
-# Ali Tutar'ın Web Frontend Görevleri
+# Ercan Aziz'in Web Frontend Görevleri
 **Front-end Test Videosu:** [Link buraya eklenecek](https://example.com)
 
 ## 1. Üye Olma (Kayıt) Sayfası
