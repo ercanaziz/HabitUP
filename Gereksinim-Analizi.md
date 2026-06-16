@@ -1,4 +1,5 @@
 # Gereksinim Analizi
+HabitUp, kullanıcıların kişisel hedefleri doğrultusunda yeni alışkanlıklar edinmelerini, bu alışkanlıkları düzenli olarak takip etmelerini ve gelişimlerini istatistiksel veriler (seri takibi vb.) üzerinden gözlemlemelerini sağlayan bir alışkanlık takip sistemidir. Bu belge, uygulamanın temel işlevlerini yerine getirebilmesi için geliştirilmesi gereken çekirdek gereksinimleri (MVP) tanımlamaktadır.
 
 
 # Tüm Gereksinimler 

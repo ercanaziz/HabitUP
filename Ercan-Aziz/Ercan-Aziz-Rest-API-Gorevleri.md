@@ -1,46 +1,40 @@
 # Ercan Aziz'in REST API Metotları
 
-**API Test Videosu:** [Link buraya eklenecek](https://example.com)
-
-## 1. Üye Olma
-- **Endpoint:** `POST /auth/register`
-- **Request Body:** 
-  ```json
-  {
-    "email": "kullanici@example.com",
-    "password": "Guvenli123!",
-    "firstName": "Ahmet",
-    "lastName": "Yılmaz"
-  }
-  ```
-- **Response:** `201 Created` - Kullanıcı başarıyla oluşturuldu
-
-## 2. Kullanıcı Bilgilerini Görüntüleme
-- **Endpoint:** `GET /users/{userId}`
-- **Path Parameters:** 
-  - `userId` (string, required) - Kullanıcı ID'si
-- **Authentication:** Bearer Token gerekli
-- **Response:** `200 OK` - Kullanıcı bilgileri başarıyla getirildi
-
-## 3. Kullanıcı Bilgilerini Güncelleme
-- **Endpoint:** `PUT /users/{userId}`
-- **Path Parameters:** 
-  - `userId` (string, required) - Kullanıcı ID'si
-- **Request Body:** 
-  ```json
-  {
-    "firstName": "Ahmet",
-    "lastName": "Yılmaz",
-    "email": "yeniemail@example.com",
-    "phone": "+905551234567"
-  }
-  ```
-- **Authentication:** Bearer Token gerekli
-- **Response:** `200 OK` - Kullanıcı başarıyla güncellendi
-
-## 4. Kullanıcı Silme
-- **Endpoint:** `DELETE /users/{userId}`
-- **Path Parameters:** 
-  - `userId` (string, required) - Kullanıcı ID'si
-- **Authentication:** Bearer Token gerekli (Yönetici yetkisi veya kendi hesabını silme yetkisi)
-- **Response:** `204 No Content` - Kullanıcı başarıyla silindi
+## Genel REST API Prensipleri
+- **Framework:** Go 1.22 — Gin Web Framework
+- **Veritabanı:** MongoDB
+- **Kimlik Doğrulama:** JWT (HS256) — `Authorization: Bearer <token>`
+- **Cache:** Redis (Upstash) — JWT blacklist
+- **Mesaj Kuyruğu:** RabbitMQ (CloudAMQP)
+- **Deployment:** Railway + Docker
+---
+## Gereksinim 1 — Kullanıcı Kaydı
+**Endpoint:** `POST /api/auth/register`
+Kullanıcı adı, e-posta ve şifreyi alır. Şifre bcrypt ile hashlenerek MongoDB'ye kaydedilir.
+## Gereksinim 2 — Kullanıcı Girişi
+**Endpoint:** `POST /api/auth/login`
+E-posta ve şifre doğrulanır. Başarılı girişte 24 saatlik JWT token döndürülür.
+## Gereksinim 3 — Yeni Alışkanlık Tanımlama
+**Endpoint:** `POST /api/habits`
+Ad ve açıklama bilgisiyle kullanıcıya bağlı yeni alışkanlık oluşturulur. `201 Created` döner.
+## Gereksinim 4 — Alışkanlıkları Listeleme
+**Endpoint:** `GET /api/habits`
+Giriş yapmış kullanıcının yalnızca kendi alışkanlıklarını getirir (veri izolasyonu).
+## Gereksinim 5 — Alışkanlık Durumu Güncelleme
+**Endpoint:** `POST /api/habits/{id}/check`
+Alışkanlığı o gün için tamamlandı işaretler. Aynı güne tekrar izin verilmez. RabbitMQ'ya event yayınlanır.
+## Gereksinim 6 — Alışkanlık Güncelleme
+**Endpoint:** `PUT /api/habits/{id}`
+MongoDB `$set` ile yalnızca gönderilen alanlar güncellenir. Başkasının verisine erişilemez.
+## Gereksinim 7 — Alışkanlık Silme
+**Endpoint:** `DELETE /api/habits/{id}`
+Alışkanlık ve bağlı tüm tamamlama kayıtları MongoDB'den kalıcı olarak silinir. `204 No Content` döner.
+## Gereksinim 8 — İşaretlemeyi Geri Alma
+**Endpoint:** `DELETE /api/habits/{id}/check`
+Bugüne ait tamamlama kaydı `checks` koleksiyonundan silinir. `204 No Content` döner.
+## Gereksinim 9 — İstatistik ve Seri Takibi
+**Endpoint:** `GET /api/habits/{id}/stats`
+Mevcut seri, en uzun seri, tamamlanma oranı ve toplam tamamlama sayısı hesaplanarak döndürülür.
+## Gereksinim 10 — Oturumu Kapatma
+**Endpoint:** `POST /api/auth/logout`
+Token Redis blacklist'e eklenerek geçersiz kılınır. Sonraki isteklerde bu token reddedilir.
