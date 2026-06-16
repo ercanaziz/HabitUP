@@ -1,62 +1,177 @@
 # Ercan Aziz'in Mobil Backend Görevleri
+
 **Mobil Front-end ile Back-end Bağlanmış Test Videosu:** [Link buraya eklenecek](https://example.com)
 
-## 1. Üye Olma (Kayıt) Servisi
-- **API Endpoint:** `POST /auth/register`
-- **Görev:** Mobil uygulamada kullanıcı kayıt işlemini gerçekleştiren servis entegrasyonu
-- **İşlevler:**
-  - Kullanıcı bilgilerini (email, password, firstName, lastName) toplama
-  - Form validasyonu (email formatı, şifre güvenliği kontrolü)
-  - API'ye POST isteği gönderme
-  - Başarılı kayıt durumunda kullanıcıyı giriş ekranına yönlendirme
-  - Hata durumlarını yakalama ve kullanıcıya gösterilmesi (409 Conflict, 400 Bad Request)
-- **Teknik Detaylar:**
-  - HTTP Client kullanımı (Retrofit/OkHttp - Android, URLSession/Alamofire - iOS)
-  - Request/Response model sınıfları oluşturma
-  - Error handling ve retry mekanizması
-  - Loading state yönetimi
+**REST API Adresi:** `https://habitup-production.up.railway.app`
 
-## 2. Kullanıcı Bilgilerini Görüntüleme Servisi
-- **API Endpoint:** `GET /users/{userId}`
-- **Görev:** Kullanıcı profil bilgilerini API'den çekip mobil uygulamada gösterme
-- **İşlevler:**
-  - JWT token ile kimlik doğrulama
-  - Kullanıcı ID'sini kullanarak profil bilgilerini getirme
-  - Gelen veriyi parse edip UI'da gösterme
-  - Token süresi dolmuşsa refresh token ile yenileme
-  - Offline durumda cache'den veri gösterme
-- **Teknik Detaylar:**
-  - Authentication header ekleme (Bearer Token)
-  - Response caching stratejisi
-  - Token refresh mekanizması
-  - Error handling (401 Unauthorized, 403 Forbidden, 404 Not Found)
+---
 
-## 3. Kullanıcı Bilgilerini Güncelleme Servisi
-- **API Endpoint:** `PUT /users/{userId}`
-- **Görev:** Kullanıcı profil bilgilerini güncelleme işlemini gerçekleştirme
-- **İşlevler:**
-  - Profil düzenleme ekranından gelen verileri toplama
-  - Form validasyonu (email formatı, telefon formatı vb.)
-  - API'ye PUT isteği gönderme
-  - Başarılı güncelleme sonrası cache'i güncelleme
-  - Optimistic UI update (kullanıcı deneyimini iyileştirme)
-- **Teknik Detaylar:**
-  - Request body oluşturma (firstName, lastName, email, phone)
-  - Partial update desteği (yalnızca değişen alanları gönderme)
-  - Conflict resolution (eşzamanlı güncelleme durumları)
-  - Error handling ve kullanıcı bildirimleri
+## Genel Mimari
 
-## 4. Kullanıcı Silme Servisi
-- **API Endpoint:** `DELETE /users/{userId}`
-- **Görev:** Kullanıcı hesabını silme işlemini gerçekleştirme
-- **İşlevler:**
-  - Kullanıcıya silme işlemi için onay dialog'u gösterme
-  - API'ye DELETE isteği gönderme
-  - Başarılı silme sonrası local storage ve cache'i temizleme
-  - Kullanıcıyı login ekranına yönlendirme
-  - Token'ı geçersiz kılma
-- **Teknik Detaylar:**
-  - Destructive action için confirmation dialog
-  - Local data cleanup (SharedPreferences/UserDefaults, cache, database)
-  - Logout işlemi entegrasyonu
-  - Error handling (401, 403, 404)
+Mobil uygulama, Railway platformunda çalışan Go (Gin) tabanlı REST API ile HTTP üzerinden haberleşmektedir. Tüm API istekleri `lib/services/api_service.dart` dosyasındaki `ApiService` sınıfı üzerinden merkezi olarak yönetilmektedir. Kimlik doğrulama gerektiren endpoint'lerde JWT token otomatik olarak `Authorization: Bearer <token>` başlığına eklenmektedir. Token, oturum açıldığında `SharedPreferences`'ta saklanmakta, oturum kapatıldığında silinmektedir.
+
+---
+
+## Gereksinim 1 — Kullanıcı Kaydı API Entegrasyonu
+
+**Endpoint:** `POST /api/auth/register`
+
+**Servis Metodu:** `ApiService.register(username, email, password)`
+
+Kullanıcının girdiği ad, e-posta ve şifre bilgileri JSON formatında API'ye gönderilmektedir. Şifre, sunucu tarafında bcrypt ile hashlenerek MongoDB'ye kaydedilmektedir. Dönüş değeri olarak HTTP durum kodu ve mesaj işlenmektedir. `201 Created` dönerse başarılı kabul edilip giriş ekranına yönlendirme yapılmaktadır.
+
+```dart
+final res = await ApiService.register(username, email, password);
+// res['statusCode'] == 201 → başarılı
+```
+
+---
+
+## Gereksinim 2 — Kullanıcı Girişi API Entegrasyonu
+
+**Endpoint:** `POST /api/auth/login`
+
+**Servis Metodu:** `ApiService.login(email, password)`
+
+E-posta ve şifre API'ye gönderilmektedir. Başarılı yanıtta (`200 OK`) dönen JWT token `SharedPreferences`'a kaydedilmekte ve sonraki tüm isteklerde otomatik olarak kullanılmaktadır. Token geçerlilik süresi 24 saattir.
+
+```dart
+final token = await ApiService.login(email, password);
+// token != null → başarılı giriş, habits ekranına geç
+```
+
+---
+
+## Gereksinim 3 — Yeni Alışkanlık Oluşturma API Entegrasyonu
+
+**Endpoint:** `POST /api/habits`
+
+**Servis Metodu:** `ApiService.createHabit(name, description)`
+
+Alışkanlık adı ve açıklama JSON gövdesiyle API'ye gönderilmektedir. `Authorization` başlığı ile JWT doğrulaması yapılmaktadır. `201 Created` dönmesi durumunda işlem başarılı sayılmakta ve alışkanlık listesi yeniden yüklenmektedir.
+
+```dart
+final ok = await ApiService.createHabit(name, description);
+// ok == true → liste yenile
+```
+
+---
+
+## Gereksinim 4 — Alışkanlık Listeleme API Entegrasyonu
+
+**Endpoint:** `GET /api/habits`
+
+**Servis Metodu:** `ApiService.getHabits()`
+
+JWT ile korunan bu endpoint, giriş yapmış kullanıcıya ait tüm alışkanlıkları JSON dizisi olarak döndürmektedir. Dönen veri `Habit.fromJson()` ile model nesnelerine dönüştürülerek `ListView`'da gösterilmektedir. Kullanıcı yalnızca kendi verilerini görmektedir (sunucu tarafı filtreleme).
+
+```dart
+final data = await ApiService.getHabits();
+_habits = data.map((e) => Habit.fromJson(e)).toList();
+```
+
+---
+
+## Gereksinim 5 — Alışkanlık Tamamlama API Entegrasyonu
+
+**Endpoint:** `POST /api/habits/{id}/check`
+
+**Servis Metodu:** `ApiService.checkHabit(id)`
+
+Seçilen alışkanlığın ID'si URL'ye eklenerek POST isteği gönderilmektedir. Sunucu, aynı gün için tekrar işaretlemeyi engellemektedir (idempotent davranış). Başarılı yanıtta RabbitMQ üzerinden `habit.checked` kuyruğuna event yayınlanmaktadır.
+
+```dart
+final ok = await ApiService.checkHabit(habit.id);
+// ok == true → UI'da checkbox işaretli göster
+```
+
+---
+
+## Gereksinim 6 — Alışkanlık Güncelleme API Entegrasyonu
+
+**Endpoint:** `PUT /api/habits/{id}`
+
+**Servis Metodu:** `ApiService.updateHabit(id, name, description)`
+
+Alışkanlık ID'si URL'de, güncellenecek alanlar JSON gövdesinde gönderilmektedir. Sunucu yalnızca gönderilen alanları güncellemekte (partial update), gönderilmeyen alanları korumaktadır. `200 OK` dönmesi durumunda liste yeniden yüklenmektedir.
+
+```dart
+final ok = await ApiService.updateHabit(id, newName, newDesc);
+```
+
+---
+
+## Gereksinim 7 — Alışkanlık Silme API Entegrasyonu
+
+**Endpoint:** `DELETE /api/habits/{id}`
+
+**Servis Metodu:** `ApiService.deleteHabit(id)`
+
+Alışkanlık ID'si URL'ye eklenerek DELETE isteği gönderilmektedir. Sunucu, alışkanlığı ve ona bağlı tüm tamamlama kayıtlarını (`checks` koleksiyonu) MongoDB'den silmektedir. `204 No Content` dönmesi durumunda işlem başarılı kabul edilmektedir.
+
+```dart
+final ok = await ApiService.deleteHabit(habit.id);
+```
+
+---
+
+## Gereksinim 8 — İşaretleme Geri Alma API Entegrasyonu
+
+**Endpoint:** `DELETE /api/habits/{id}/check`
+
+**Servis Metodu:** `ApiService.uncheckHabit(id)`
+
+O günkü tamamlama kaydının silinmesi için DELETE isteği gönderilmektedir. Sunucu bugünün tarihine ait kaydı `checks` koleksiyonundan kaldırmakta, streak algoritması yeniden hesaplanmaktadır. `204 No Content` başarı yanıtıdır.
+
+```dart
+final ok = await ApiService.uncheckHabit(habit.id);
+```
+
+---
+
+## Gereksinim 9 — İstatistik API Entegrasyonu
+
+**Endpoint:** `GET /api/habits/{id}/stats`
+
+**Servis Metodu:** `ApiService.getStats(id)`
+
+Seçilen alışkanlığa ait istatistikler API'den alınmaktadır. Dönen JSON nesnesi şu alanları içermektedir:
+
+| Alan | Tip | Açıklama |
+|------|-----|----------|
+| `currentStreak` | int | Mevcut kesintisiz gün serisi |
+| `longestStreak` | int | Tüm zamanlardaki en uzun seri |
+| `completionRate` | double | Yüzde tamamlanma oranı |
+| `totalChecks` | int | Toplam tamamlama sayısı |
+
+```dart
+final stats = await ApiService.getStats(habit.id);
+// stats['currentStreak'], stats['completionRate'] vb.
+```
+
+---
+
+## Gereksinim 10 — Oturum Kapatma API Entegrasyonu
+
+**Endpoint:** `POST /api/auth/logout`
+
+**Servis Metodu:** `ApiService.logout()`
+
+Logout isteği gönderildiğinde sunucu JWT token'ı Redis blacklist'e eklemektedir. Mobil tarafta ise `SharedPreferences`'tan token silinerek yerel oturum da sonlandırılmaktadır. Bu çift taraflı yaklaşım sayesinde token çalınsa bile geçersiz sayılmaktadır.
+
+```dart
+await ApiService.logout();
+// SharedPreferences token silindi + Redis blacklist eklendi
+```
+
+---
+
+## Kullanılan Teknolojiler
+
+| Teknoloji | Kullanım Amacı |
+|-----------|----------------|
+| `http` paketi | REST API istekleri (GET, POST, PUT, DELETE) |
+| `shared_preferences` | JWT token'ın cihazda kalıcı saklanması |
+| `dart:convert` | JSON encode/decode işlemleri |
+| JWT (sunucu tarafı) | Kimlik doğrulama ve yetkilendirme |
+| HTTPS | Güvenli API iletişimi (Railway SSL) |

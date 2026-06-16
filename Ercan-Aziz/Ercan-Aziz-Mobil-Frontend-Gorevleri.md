@@ -1,116 +1,119 @@
 # Ercan Aziz'in Mobil Frontend Görevleri
+
 **Mobile Front-end Demo Videosu:** [Link buraya eklenecek](https://example.com)
 
-## 1. Üye Olma (Kayıt) Ekranı
-- **API Endpoint:** `POST /auth/register`
-- **Görev:** Kullanıcı kayıt işlemi için mobil ekran tasarımı ve implementasyonu
-- **UI Bileşenleri:**
-  - Email input alanı (keyboard type: email)
-  - Şifre input alanı (secure text entry, şifre gücü göstergesi)
-  - Şifre tekrar input alanı (doğrulama için)
-  - Ad (firstName) input alanı
-  - Soyad (lastName) input alanı
-  - "Kayıt Ol" butonu
-  - "Zaten hesabınız var mı? Giriş Yap" linki
-  - Loading indicator (kayıt işlemi sırasında)
-- **Form Validasyonu:**
-  - Email format kontrolü (real-time validation)
-  - Şifre güvenlik kuralları (min 8 karakter, büyük/küçük harf, rakam)
-  - Şifre eşleşme kontrolü
-  - Ad ve soyad boş olamaz kontrolü
-  - Tüm alanlar doldurulmadan buton disabled
-- **Kullanıcı Deneyimi:**
-  - Form hatalarını alan altında gösterilmesi
-  - Başarılı kayıt sonrası success mesajı ve otomatik giriş ekranına yönlendirme
-  - Hata durumlarında kullanıcı dostu mesajlar (409 Conflict: "Bu email zaten kullanılıyor")
-  - Keyboard dismiss işlevi
-  - ScrollView kullanımı (klavye açıldığında içerik kaybolmasın)
-- **Teknik Detaylar:**
-  - Platform: Android (Jetpack Compose/XML) veya iOS (SwiftUI/UIKit)
-  - State management (form state, loading state, error state)
-  - Navigation (kayıt ekranından giriş ekranına geçiş)
-  - Accessibility desteği (content descriptions, labels)
+---
 
-## 2. Kullanıcı Profil Görüntüleme Ekranı
-- **API Endpoint:** `GET /users/{userId}`
-- **Görev:** Kullanıcı profil bilgilerini görüntüleme ekranı tasarımı ve implementasyonu
-- **UI Bileşenleri:**
-  - Profil fotoğrafı alanı (placeholder veya gerçek fotoğraf)
-  - Kullanıcı adı ve soyadı (büyük başlık)
-  - Email adresi (ikonlu)
-  - Telefon numarası (ikonlu, varsa)
-  - Hesap oluşturulma tarihi
-  - "Profili Düzenle" butonu
-  - "Hesabı Sil" butonu (kırmızı, alt kısımda)
-  - Pull-to-refresh özelliği
-- **Kullanıcı Deneyimi:**
-  - Loading skeleton screen (veri yüklenirken)
-  - Empty state (veri yoksa)
-  - Error state (yükleme hatası durumunda retry butonu)
-  - Smooth scroll animasyonları
-  - Profil fotoğrafı için placeholder avatar
-- **Teknik Detaylar:**
-  - Lazy loading (büyük profil fotoğrafları için)
-  - Image caching
-  - State management (user data, loading, error states)
-  - Navigation (profil düzenleme ekranına geçiş)
-  - Deep linking desteği (profil paylaşımı için)
+## Gereksinim 1 — Kullanıcı Kaydı Ekranı
 
-## 3. Kullanıcı Profil Düzenleme Ekranı
-- **API Endpoint:** `PUT /users/{userId}`
-- **Görev:** Kullanıcı profil bilgilerini düzenleme ekranı tasarımı ve implementasyonu
-- **UI Bileşenleri:**
-  - Profil fotoğrafı düzenleme (seçme/değiştirme butonu)
-  - Ad (firstName) input alanı (mevcut değerle dolu)
-  - Soyad (lastName) input alanı (mevcut değerle dolu)
-  - Email input alanı (mevcut değerle dolu, düzenlenebilir)
-  - Telefon numarası input alanı (mevcut değerle dolu, format maskesi)
-  - "Kaydet" butonu (sağ üst köşe veya alt kısımda)
-  - "İptal" butonu (sol üst köşe)
-  - Değişiklik yapıldığında "Kaydet" butonu aktif olur
-- **Form Validasyonu:**
-  - Email format kontrolü
-  - Telefon numarası format kontrolü (ülke kodu desteği)
-  - Real-time validation feedback
-  - Değişiklik yoksa "Kaydet" butonu disabled
-- **Kullanıcı Deneyimi:**
-  - Optimistic update (kaydet butonuna basıldığında UI anında güncellenir)
-  - Başarılı güncelleme sonrası success snackbar/toast
-  - Hata durumunda error mesajı ve değişiklikler geri alınır
-  - "İptal" butonuna basıldığında değişiklik kaybı için onay dialog'u
-  - Keyboard dismiss işlevi
-- **Teknik Detaylar:**
-  - Form state management (initial values, edited values)
-  - Image picker entegrasyonu (galeri/kamera)
-  - Image compression (upload için)
-  - Navigation (geri dönüş, kaydetme sonrası profil ekranına dönüş)
-  - Unsaved changes warning
+**Ekran:** `register_screen.dart`
 
-## 4. Hesap Silme Akışı
-- **API Endpoint:** `DELETE /users/{userId}`
-- **Görev:** Kullanıcı hesabını silme işlemi için UI akışı tasarımı ve implementasyonu
-- **UI Bileşenleri:**
-  - "Hesabı Sil" butonu (profil ekranında, kırmızı renkli)
-  - Onay dialog'u (destructive action için)
-  - Şifre doğrulama ekranı (güvenlik için opsiyonel)
-  - Son onay ekranı (uyarı mesajları ile)
-  - "Emin misiniz?" dialog'u (çift onay mekanizması)
-- **Kullanıcı Deneyimi:**
-  - Destructive action için görsel uyarılar (kırmızı renk, ikonlar)
-  - Açık ve net uyarı mesajları ("Bu işlem geri alınamaz")
-  - İptal seçeneği her zaman mevcut
-  - Silme işlemi sırasında loading indicator
-  - Başarılı silme sonrası logout ve login ekranına yönlendirme
-- **Akış Adımları:**
-  1. Profil ekranında "Hesabı Sil" butonuna tıklama
-  2. İlk uyarı dialog'u gösterilmesi
-  3. Onaylandığında şifre doğrulama (opsiyonel)
-  4. Son onay ekranı (detaylı uyarılar)
-  5. Silme işlemi gerçekleştirme
-  6. Başarılı silme sonrası logout ve login ekranına yönlendirme
-- **Teknik Detaylar:**
-  - Dialog/Modal component kullanımı
-  - Multi-step flow yönetimi
-  - Error handling (silme başarısız olursa)
-  - Logout işlemi entegrasyonu
-  - Navigation reset (login ekranına dönüş)
+Kullanıcının sisteme yeni hesap oluşturmasını sağlayan kayıt ekranı. Kullanıcı adı, e-posta ve şifre alanlarından oluşan form yapısı bulunmaktadır. Form doğrulama (validation) mantığı uygulanmış olup eksik veya hatalı girişlerde kullanıcıya uyarı mesajı gösterilmektedir. Kayıt başarılı olduğunda kullanıcı otomatik olarak giriş ekranına yönlendirilmektedir.
+
+**Kullanılan Widget'lar:** `TextField`, `ElevatedButton`, `SnackBar`
+
+---
+
+## Gereksinim 2 — Kullanıcı Girişi Ekranı
+
+**Ekran:** `login_screen.dart`
+
+Kayıtlı kullanıcıların sisteme erişimini sağlayan giriş ekranı. E-posta ve şifre alanları içermektedir. Başarılı girişte JWT token `SharedPreferences` üzerine kaydedilmekte ve kullanıcı alışkanlıklar ekranına yönlendirilmektedir. Uygulama açıldığında daha önce oturum açılmışsa otomatik olarak alışkanlıklar ekranına geçiş yapılmaktadır (Splash ekranı ile kontrol).
+
+**Kullanılan Widget'lar:** `TextField`, `ElevatedButton`, `SharedPreferences`
+
+---
+
+## Gereksinim 3 — Yeni Alışkanlık Tanımlama
+
+**Ekran:** `habits_screen.dart` → `_showCreateDialog()`
+
+Ana ekrandaki `+` (FloatingActionButton) butonuna basıldığında açılan dialog penceresi aracılığıyla kullanıcı yeni alışkanlık oluşturabilmektedir. Ad ve açıklama alanlarından oluşmaktadır. Oluşturma başarılı olduğunda liste otomatik olarak yenilenmektedir.
+
+**Kullanılan Widget'lar:** `FloatingActionButton`, `AlertDialog`, `TextField`
+
+---
+
+## Gereksinim 4 — Alışkanlıkları Listeleme Ekranı
+
+**Ekran:** `habits_screen.dart`
+
+Kullanıcının oluşturduğu tüm alışkanlıkları kart (Card) yapısında listeleyen ana ekrandır. Her kartta alışkanlık adı, açıklaması ve işlem butonları (tamamla, düzenle, sil, istatistik) yer almaktadır. Liste boş olduğunda yönlendirici bir boş durum (empty state) mesajı gösterilmektedir. Pull-to-refresh (aşağı çekme ile yenileme) desteği mevcuttur.
+
+**Kullanılan Widget'lar:** `ListView.builder`, `Card`, `RefreshIndicator`
+
+---
+
+## Gereksinim 5 — Alışkanlık Durumu Güncelleme (Tamamlandı İşaretle)
+
+**Ekran:** `habits_screen.dart` → `_toggleCheck()`
+
+Her alışkanlık kartının solunda yer alan dairesel checkbox ile kullanıcı o günkü alışkanlığını tamamlandı olarak işaretleyebilmektedir. İşaretlenen alışkanlıklar mor renk ile dolup üzeri çizili (strikethrough) görünüm almaktadır. Durum `_checkedToday` kümesinde tutulmaktadır.
+
+**Kullanılan Widget'lar:** `GestureDetector`, `Container` (dairesel), `Icon(Icons.check)`
+
+---
+
+## Gereksinim 6 — Alışkanlık Güncelleme
+
+**Ekran:** `habits_screen.dart` → `_showEditDialog()`
+
+Her kartın sağındaki kalem (edit) ikonuna basıldığında açılan dialog ile kullanıcı mevcut alışkanlığın adını ve açıklamasını güncelleyebilmektedir. Mevcut değerler forma otomatik olarak yüklenmektedir. Güncelleme sonrasında liste yenilenmektedir.
+
+**Kullanılan Widget'lar:** `AlertDialog`, `TextEditingController`, `ElevatedButton`
+
+---
+
+## Gereksinim 7 — Alışkanlık Silme
+
+**Ekran:** `habits_screen.dart` → `_deleteHabit()`
+
+Her kartın sağındaki çöp kutusu ikonuna basıldığında onay dialogu açılmaktadır. Kullanıcı silme işlemini onaylarsa alışkanlık ve ona bağlı tüm tamamlama kayıtları sistemden kaldırılmakta, liste güncellenmektedir. Yanlışlıkla silmenin önüne geçmek için iki adımlı onay mekanizması kullanılmıştır.
+
+**Kullanılan Widget'lar:** `AlertDialog`, `TextButton` (İptal/Sil)
+
+---
+
+## Gereksinim 8 — İşaretlemeyi Geri Alma
+
+**Ekran:** `habits_screen.dart` → `_toggleCheck()`
+
+Daha önce tamamlandı olarak işaretlenen bir alışkanlığa tekrar tıklanıldığında işaretleme geri alınmaktadır. `_checkedToday` kümesinden ilgili ID kaldırılmakta ve daire boş (çizgisiz) görünümüne geri dönmektedir.
+
+**Kullanılan Widget'lar:** `GestureDetector`, durum yönetimi (`setState`)
+
+---
+
+## Gereksinim 9 — İstatistik ve Seri Takibi Ekranı
+
+**Ekran:** `stats_screen.dart`
+
+Her alışkanlık kartındaki grafik (bar_chart) ikonuna basıldığında açılan ekrandır. Seçilen alışkanlığa ait şu istatistikleri göstermektedir:
+
+- **Mevcut Seri (Current Streak):** Kesintisiz devam eden gün sayısı
+- **En Uzun Seri (Longest Streak):** Tüm zamanlardaki en iyi seri
+- **Tamamlanma Oranı:** Oluşturulma tarihinden itibaren yüzde kaç tamamlandığı
+- **Toplam Tamamlama:** Toplam tamamlandı işaretleme sayısı
+
+**Kullanılan Widget'lar:** `Card`, `Column`, `CircularProgressIndicator` (yükleme)
+
+---
+
+## Gereksinim 10 — Oturumu Kapatma
+
+**Ekran:** `habits_screen.dart` → `_logout()`
+
+AppBar'ın sağ üst köşesindeki çıkış (logout) ikonuna basıldığında oturum sonlandırılmaktadır. `SharedPreferences`'tan JWT token silinmekte ve kullanıcı giriş ekranına yönlendirilmektedir. Sunucu tarafında da token geçersiz kılınmaktadır (Redis blacklist).
+
+**Kullanılan Widget'lar:** `IconButton(Icons.logout)`, `Navigator.pushReplacement`
+
+---
+
+## Genel UI/UX Tercihleri
+
+- **Tema:** Dark mode — `ThemeData.dark()` bazlı özel renk paleti
+- **Ana Renk:** `#6C63FF` (mor) — buton, checkbox, ikon vurguları
+- **Arka Plan:** `#1A1A2E` (koyu lacivert) 
+- **Kart Arka Planı:** `#16213E`
+- **Yazı Tipi:** Flutter varsayılan (Material Design)
+- **Animasyon:** `RefreshIndicator`, `CircularProgressIndicator` yükleme göstergeleri
