@@ -13,7 +13,7 @@ HabitUp, kullanıcıların günlük rutinlerini inşa etmelerine, takip etmeleri
 Üretkenlik (Productivity)
 
 **Referans Uygulama:** 
-> [Streaks App]https://streaksapp.com/
+> [Streaks App] https://streaksapp.com/
 
 ---
 
