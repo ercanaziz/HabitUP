@@ -50,10 +50,10 @@ jobs:
       - name: Testleri çalıştır
         working-directory: ./backend
         env:
-          MONGO_URI: mongodb://root:secret@localhost:27017/habitup?authSource=admin
-          REDIS_ADDR: localhost:6379
-          RABBITMQ_URL: amqp://guest:guest@localhost:5672/
-          JWT_SECRET: test_secret_key
+          MONGO_URI: mongodb+srv://ercanaziz2005_db_user:ercan123@cluster0.sibvzna.mongodb.net/habitup?retryWrites=true&w=majority&appName=Cluster0
+          REDIS_ADDR: rediss://default:gQAAAAAAAkjrAAIgcDIzNDZhZTJhMGRiZTQ0MjY1OGI5MzEyZDZiZDRkODA3ZA@ace-wildcat-149739.upstash.io:6379
+          RABBITMQ_URL: amqps://yqlotmcn:lP37ceVnxhmO6JToAYrawYNo4vGBzjyF@stingray.rmq.cloudamqp.com/yqlotmcn
+          JWT_SECRET: supersecretkey123
         run: go test ./... -v
 
   docker-build:
