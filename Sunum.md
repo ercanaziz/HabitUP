@@ -2,24 +2,24 @@
 
 ## CI-CD ve Docker Kanıt Videosu
 
-> **Video Linki:** [CI-CD ve Docker videosu linki buraya eklenecek](https://youtu.be/JFe8yeWEu4U)
+> **Video Linki:** [CI-CD ve Docker videosu](https://youtu.be/JFe8yeWEu4U)
 
 ## RabbitMQ/Kafka Kanıt Videosu
 
-> **Video Linki:** [RabbitMQ/Kafka videosu linki buraya eklenecek](https://youtu.be/azDdSk8dye0)
+> **Video Linki:** [RabbitMQ/Kafka videosu](https://youtu.be/azDdSk8dye0)
 
 ## Redis/Memcached Kanıt Videosu
 
-> **Video Linki:** [Redis/Memcached videosu linki buraya eklenecek](https://youtu.be/E1Fn2dgbqag)
+> **Video Linki:** [Redis/Memcached videosu](https://youtu.be/E1Fn2dgbqag)
 
 ## Sunum Videosu (Cep Telefonunda Gösterilmeli, Tüm ekip bir arada)
 
-> **Video Linki:** [Sunum videosu linki buraya eklenecek](https://youtu.be/3AYCnC3j0ss)
+> **Video Linki:** [Sunum videosu](https://youtu.be/3AYCnC3j0ss)
 
 
 ---
 
-#### Veli Yılmaz
+#### Ercan Aziz
 **Kişisel Tanıtım:**
 - İsim: Ercan Aziz
 - Rol: Takım Lideri
