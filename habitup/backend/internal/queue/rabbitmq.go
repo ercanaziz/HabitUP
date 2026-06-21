@@ -72,7 +72,8 @@ func StartConsumer() {
 		log.Println("RabbitMQ kanalı yok — consumer başlatılmıyor")
 		return
 	}
-	msgs, err := ch.Consume(HabitCheckedQueue, "", true, false, false, false, nil)
+	// autoAck'i false yapıyoruz ki mesaj işlem bitene kadar kuyrukta (Unacked olarak) görünsün
+	msgs, err := ch.Consume(HabitCheckedQueue, "", false, false, false, false, nil)
 	if err != nil {
 		log.Println("RabbitMQ consumer hatası:", err)
 		return
@@ -83,6 +84,7 @@ func StartConsumer() {
 			var event HabitCheckedEvent
 			if err := json.Unmarshal(d.Body, &event); err != nil {
 				log.Println("Event parse hatası:", err)
+				d.Ack(false)
 				continue
 			}
 			
@@ -90,6 +92,9 @@ func StartConsumer() {
 			time.Sleep(5 * time.Second)
 			
 			log.Printf("[RabbitMQ] Alışkanlık tamamlandı — kullanıcı: %s, alışkanlık: %s", event.UserID, event.HabitID)
+			
+			// İşlem bitince RabbitMQ'ya mesajın işlendiğini (Ack) bildir
+			d.Ack(false)
 		}
 	}()
 }
