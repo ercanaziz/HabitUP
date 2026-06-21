@@ -2,7 +2,7 @@
 
 ## CI-CD ve Docker Kanıt Videosu
 
-> **Video Linki:** [CI-CD ve Docker videosu](https://youtu.be/JFe8yeWEu4U)
+> **Video Linki:** [CI-CD ve Docker videosu](https://youtu.be/n1HQqwjPaVE)
 
 ## RabbitMQ/Kafka Kanıt Videosu
 
