@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -84,6 +85,10 @@ func StartConsumer() {
 				log.Println("Event parse hatası:", err)
 				continue
 			}
+			
+			// Video sunumunda mesajın kuyrukta kaldığını gösterebilmek için bilerek 5 saniye bekletiyoruz
+			time.Sleep(5 * time.Second)
+			
 			log.Printf("[RabbitMQ] Alışkanlık tamamlandı — kullanıcı: %s, alışkanlık: %s", event.UserID, event.HabitID)
 		}
 	}()
